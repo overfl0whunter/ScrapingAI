@@ -1,45 +1,49 @@
-import { NextResponse } from "next/server"
-import type { NextRequest } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  // Create a Supabase client configured to use cookies
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-    process.env.SUPABASE_SERVICE_ROLE_KEY as string,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-      },
-    },
-  )
+// Lista dei percorsi pubblici che non richiedono autenticazione
+const publicPaths = ['/login', '/auth/callback']
 
-  // Refresh session if expired
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next()
+  const supabase = createMiddlewareClient({ req, res })
 
-  // If user is not signed in and the current path is not /login,
-  // redirect the user to /login
-  if (!session && !request.nextUrl.pathname.startsWith("/login")) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = "/login"
-    return NextResponse.redirect(redirectUrl)
+  // Verifica se il percorso è pubblico
+  const isPublicPath = publicPaths.some(path => req.nextUrl.pathname.startsWith(path))
+  
+  if (isPublicPath) {
+    return res
   }
 
-  // If user is signed in and the current path is /login,
-  // redirect the user to /
-  if (session && request.nextUrl.pathname.startsWith("/login")) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = "/"
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    // Se non c'è una sessione e non siamo su un percorso pubblico, reindirizza al login
+    if (!session) {
+      const redirectUrl = new URL('/login', req.url)
+      return NextResponse.redirect(redirectUrl)
+    }
+
+    return res
+  } catch (error) {
+    console.error('Error in middleware:', error)
+    const redirectUrl = new URL('/login', req.url)
     return NextResponse.redirect(redirectUrl)
   }
-
-  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public folder
+     */
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+  ],
 }

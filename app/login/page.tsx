@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,7 +20,20 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = getSupabaseBrowserClient()
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        const redirectTo = searchParams.get("redirectedFrom") || "/"
+        router.push(redirectTo)
+      }
+    }
+
+    checkSession()
+  }, [router, searchParams, supabase])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,7 +47,9 @@ export default function LoginPage() {
       })
 
       if (error) throw error
-      router.push("/")
+
+      const redirectTo = searchParams.get("redirectedFrom") || "/"
+      router.push(redirectTo)
       router.refresh()
     } catch (error: any) {
       setError(error.message || "Failed to sign in")
