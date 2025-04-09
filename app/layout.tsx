@@ -1,16 +1,24 @@
+'use client'
+
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/components/auth/auth-provider"
+import dynamic from 'next/dynamic'
 
 const inter = Inter({ subsets: ["latin"] })
+
+// Importa il AuthProvider dinamicamente per evitare SSR
+const AuthProvider = dynamic(
+  () => import("@/components/auth/auth-provider").then(mod => mod.AuthProvider),
+  { ssr: false }
+)
 
 export const metadata: Metadata = {
   title: "ScrapingAI - AI-Powered Code Assistant",
   description: "Generate, analyze, and optimize code with AI assistance",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
