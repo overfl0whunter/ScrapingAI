@@ -1,30 +1,33 @@
 import type React from "react"
-import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import SettingsLayout from "@/components/settings/settings-layout"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/components/auth/auth-provider"
 
-export default async function SettingsRootLayout({
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "ScrapingAI - AI-Powered Code Assistant",
+  description: "Generate, analyze, and optimize code with AI assistance",
+    generator: 'v0.dev'
+}
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = getSupabaseServerClient()
-
-  // Check if user is authenticated
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) {
-    redirect("/login")
-  }
-
-  return <SettingsLayout>{children}</SettingsLayout>
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  )
 }
 
 
 import './globals.css'
-
-export const metadata = {
-      generator: 'v0.dev'
-    };

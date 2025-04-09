@@ -1,28 +1,27 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import { getSupabaseBrowserClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, Code2, Github, Twitter } from "lucide-react"
-import { AuthMessage } from "@/components/ui/auth-message"
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Loader2, Code2, Github, Twitter } from 'lucide-react'
+import { AuthMessage } from '@/components/ui/auth-message'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [username, setUsername] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const supabase = getSupabaseBrowserClient()
+  const supabase = createClient()
 
   useEffect(() => {
     const checkSession = async () => {
@@ -32,11 +31,11 @@ export default function LoginPage() {
         } = await supabase.auth.getSession()
 
         if (session) {
-          const redirectTo = searchParams.get("redirectedFrom") || "/"
+          const redirectTo = searchParams.get('redirectedFrom') || '/'
           router.push(redirectTo)
         }
       } catch (error) {
-        console.error("Error checking session:", error)
+        console.error('Error checking session:', error)
       }
     }
 
@@ -56,11 +55,10 @@ export default function LoginPage() {
 
       if (error) throw error
 
-      // Successfully signed in, redirect
-      const redirectTo = searchParams.get("redirectedFrom") || "/"
+      const redirectTo = searchParams.get('redirectedFrom') || '/'
       router.push(redirectTo)
     } catch (error: any) {
-      setError(error.message || "Failed to sign in")
+      setError(error.message || 'Failed to sign in')
     } finally {
       setLoading(false)
     }
@@ -72,26 +70,24 @@ export default function LoginPage() {
     setError(null)
 
     if (!username.trim()) {
-      setError("Username is required")
+      setError('Username is required')
       setLoading(false)
       return
     }
 
     try {
-      // First check if username is already taken
       const { data: existingUser } = await supabase
-        .from("user_profiles")
-        .select("username")
-        .eq("username", username.trim())
+        .from('user_profiles')
+        .select('username')
+        .eq('username', username.trim())
         .single()
 
       if (existingUser) {
-        setError("Username is already taken")
+        setError('Username is already taken')
         setLoading(false)
         return
       }
 
-      // Sign up the user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -106,8 +102,7 @@ export default function LoginPage() {
       if (error) throw error
 
       if (data.user) {
-        // Create user profile
-        const { error: profileError } = await supabase.from("user_profiles").insert({
+        const { error: profileError } = await supabase.from('user_profiles').insert({
           user_id: data.user.id,
           first_name: firstName,
           last_name: lastName,
@@ -116,16 +111,16 @@ export default function LoginPage() {
 
         if (profileError) throw profileError
 
-        setError("Check your email for the confirmation link")
+        setError('Check your email for the confirmation link')
       }
     } catch (error: any) {
-      setError(error.message || "Failed to sign up")
+      setError(error.message || 'Failed to sign up')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleOAuthSignIn = async (provider: "github" | "twitter") => {
+  const handleOAuthSignIn = async (provider: 'github' | 'twitter') => {
     setLoading(true)
     setError(null)
 
@@ -154,8 +149,8 @@ export default function LoginPage() {
               <Code2 className="h-10 w-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">AI Code Assistant</h1>
-          <p className="text-gray-600 mt-2">Your AI-powered coding companion</p>
+          <h1 className="text-3xl font-bold text-gray-900">ScrapingAI</h1>
+          <p className="text-gray-600 mt-2">Your AI-powered scraping assistant</p>
         </div>
 
         <Card className="border-0 shadow-xl">
@@ -206,7 +201,7 @@ export default function LoginPage() {
                         Signing In...
                       </>
                     ) : (
-                      "Sign In"
+                      'Sign In'
                     )}
                   </Button>
                   <div className="relative w-full">
@@ -218,21 +213,21 @@ export default function LoginPage() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      className="w-full" 
+                    <Button
+                      variant="outline"
+                      className="w-full"
                       type="button"
-                      onClick={() => handleOAuthSignIn("github")}
+                      onClick={() => handleOAuthSignIn('github')}
                       disabled={loading}
                     >
                       <Github className="h-4 w-4 mr-2" />
                       GitHub
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full" 
+                    <Button
+                      variant="outline"
+                      className="w-full"
                       type="button"
-                      onClick={() => handleOAuthSignIn("twitter")}
+                      onClick={() => handleOAuthSignIn('twitter')}
                       disabled={loading}
                     >
                       <Twitter className="h-4 w-4 mr-2" />
@@ -315,7 +310,7 @@ export default function LoginPage() {
                         Creating Account...
                       </>
                     ) : (
-                      "Create Account"
+                      'Create Account'
                     )}
                   </Button>
                   <div className="relative w-full">
@@ -327,21 +322,21 @@ export default function LoginPage() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button 
-                      variant="outline" 
-                      className="w-full" 
+                    <Button
+                      variant="outline"
+                      className="w-full"
                       type="button"
-                      onClick={() => handleOAuthSignIn("github")}
+                      onClick={() => handleOAuthSignIn('github')}
                       disabled={loading}
                     >
                       <Github className="h-4 w-4 mr-2" />
                       GitHub
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full" 
+                    <Button
+                      variant="outline"
+                      className="w-full"
                       type="button"
-                      onClick={() => handleOAuthSignIn("twitter")}
+                      onClick={() => handleOAuthSignIn('twitter')}
                       disabled={loading}
                     >
                       <Twitter className="h-4 w-4 mr-2" />
@@ -355,11 +350,11 @@ export default function LoginPage() {
         </Card>
 
         <p className="text-center text-gray-500 text-sm mt-8">
-          By signing up, you agree to our{" "}
+          By signing up, you agree to our{' '}
           <a href="#" className="text-blue-600 hover:underline">
             Terms of Service
-          </a>{" "}
-          and{" "}
+          </a>{' '}
+          and{' '}
           <a href="#" className="text-blue-600 hover:underline">
             Privacy Policy
           </a>
@@ -367,4 +362,4 @@ export default function LoginPage() {
       </div>
     </div>
   )
-}
+} 

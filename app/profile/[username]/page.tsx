@@ -16,11 +16,7 @@ export default async function UserProfilePage({ params }: { params: { username: 
   }
 
   // Fetch the profile of the requested username
-  const { data: profile, error } = await supabase
-    .from("user_profiles")
-    .select("*")
-    .eq("username", username)
-    .single()
+  const { data: profile, error } = await supabase.from("user_profiles").select("*").eq("username", username).single()
 
   if (error || !profile) {
     notFound()

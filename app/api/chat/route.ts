@@ -10,13 +10,13 @@ export async function POST(req: Request) {
 
   if (!apiKey) {
     return new Response(
-      JSON.stringify({ 
-        error: "API key is required. Please add your API key in the chat interface." 
-      }), 
-      { 
+      JSON.stringify({
+        error: "API key is required. Please add your API key in the chat interface.",
+      }),
+      {
         status: 400,
-        headers: { "Content-Type": "application/json" }
-      }
+        headers: { "Content-Type": "application/json" },
+      },
     )
   }
 

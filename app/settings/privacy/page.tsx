@@ -23,14 +23,16 @@ export default async function PrivacySettingsPage() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <PrivacySettingsForm 
-        user={session.user} 
-        privacySettings={privacySettings || {
-          profile_visibility: "public",
-          activity_visibility: "followers",
-          searchable: true,
-          user_id: session.user.id
-        }} 
+      <PrivacySettingsForm
+        user={session.user}
+        privacySettings={
+          privacySettings || {
+            profile_visibility: "public",
+            activity_visibility: "followers",
+            searchable: true,
+            user_id: session.user.id,
+          }
+        }
       />
     </main>
   )

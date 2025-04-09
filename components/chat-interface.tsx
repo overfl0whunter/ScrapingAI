@@ -157,8 +157,8 @@ export default function ChatInterface({
                   className="w-full"
                 />
                 <p className="text-xs text-gray-500">
-                  Inserisci la tua API key per OpenAI, Anthropic o altri provider supportati.
-                  Puoi gestire le tue API key nelle impostazioni.
+                  Inserisci la tua API key per OpenAI, Anthropic o altri provider supportati. Puoi gestire le tue API
+                  key nelle impostazioni.
                 </p>
               </div>
             </PopoverContent>

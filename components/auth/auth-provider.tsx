@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = getSupabaseBrowserClient()
 
   useEffect(() => {
+    // Use the existing supabase client
     const getSession = async () => {
       const {
         data: { session },

@@ -1,19 +1,19 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js"
+import type { SupabaseClient } from "@supabase/supabase-js"
 
-declare global {
-  var supabaseClient: SupabaseClient | undefined
-}
+// Create a single instance of the Supabase client
+let supabaseClient: SupabaseClient | null = null
 
 export function getSupabaseBrowserClient(): SupabaseClient {
   if (typeof window === "undefined") {
     throw new Error("getSupabaseBrowserClient should only be called in the browser")
   }
 
-  if (global.supabaseClient) {
-    return global.supabaseClient
+  if (supabaseClient) {
+    return supabaseClient
   }
 
-  global.supabaseClient = createClient(
+  supabaseClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL as string,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string,
     {
@@ -21,13 +21,10 @@ export function getSupabaseBrowserClient(): SupabaseClient {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'v0-supabase-auth',
+        storageKey: "v0-supabase-auth",
       },
-      db: {
-        schema: 'public'
-      }
-    }
+    },
   )
 
-  return global.supabaseClient
+  return supabaseClient
 }

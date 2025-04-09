@@ -32,7 +32,7 @@ export default function ChatContainer({ sessionId }: ChatContainerProps) {
         .eq("service_name", selectedModel.startsWith("claude") ? "Anthropic" : "OpenAI")
         .single()
 
-      if (!error && data && typeof data.api_key === 'string') {
+      if (!error && data && typeof data.api_key === "string") {
         setApiKey(data.api_key)
       }
     } catch (error) {
@@ -55,7 +55,7 @@ export default function ChatContainer({ sessionId }: ChatContainerProps) {
     },
     onResponse: (response) => {
       if (!response.ok) {
-        response.json().then(data => {
+        response.json().then((data) => {
           if (data.error) {
             toast.error(data.error)
           }

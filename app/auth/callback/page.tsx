@@ -11,8 +11,11 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession()
+
         if (error) {
           console.error("Error getting session:", error)
           router.push("/login")
@@ -41,4 +44,4 @@ export default function AuthCallbackPage() {
       </div>
     </div>
   )
-} 
+}
