@@ -1,18 +1,31 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/client';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { Button } from './ui/button';
-import { useState } from 'react';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export default function Auth() {
   const router = useRouter();
-  const supabase = createClient();
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const client = getSupabaseBrowserClient();
+      setSupabase(client);
+    } catch (error) {
+      console.error('Error initializing Supabase client:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!supabase || typeof window === 'undefined') return;
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
@@ -24,9 +37,11 @@ export default function Auth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [router, supabase.auth]);
+  }, [router, supabase]);
 
   const handleSignInWithGithub = async () => {
+    if (!supabase) return;
+    
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
@@ -60,7 +75,7 @@ export default function Auth() {
           <div className="space-y-4">
             <Button
               onClick={handleSignInWithGithub}
-              disabled={isLoading}
+              disabled={isLoading || !supabase}
               className="w-full flex items-center justify-center gap-2 bg-[#24292e] hover:bg-[#24292e]/90"
             >
               <svg

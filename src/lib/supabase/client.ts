@@ -1,6 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface Database {
   public: {
@@ -38,14 +39,50 @@ export interface Database {
   }
 }
 
-export const createClient = () => {
+// Create a single instance of the Supabase client for browser
+let supabaseClient: SupabaseClient | null = null
+
+export function getSupabaseBrowserClient(): SupabaseClient {
+  if (typeof window === "undefined") {
+    throw new Error("getSupabaseBrowserClient should only be called in the browser")
+  }
+
+  if (supabaseClient) {
+    return supabaseClient
+  }
+
+  supabaseClient = createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
+  return supabaseClient
+}
+
+export async function createClient() {
+  if (typeof window === 'undefined') {
+    const cookieStore = await cookies()
+    return createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            const cookie = cookieStore.get(name)
+            return cookie?.value
+          },
+        },
+      }
+    )
+  }
+
   return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }
 
-export const createServerComponentClient = async () => {
+export async function createServerComponentClient() {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
@@ -54,7 +91,8 @@ export const createServerComponentClient = async () => {
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value
+          const cookie = cookieStore.get(name)
+          return cookie?.value
         },
       },
     }

@@ -31,15 +31,15 @@ export async function POST(req: Request) {
     modelProvider = anthropic(model)
   } else if (model.includes("/")) {
     // OpenRouter models with provider/model format
-    const openaiWithRouter = createOpenAI({
+    const openRouter = createOpenAI({
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: apiKey,
-      defaultHeaders: {
-        "HTTP-Referer": process.env.SITE_URL || "https://v0-ai-chatbot-project.vercel.app/",
-        "X-Title": "AI Code Assistant",
+      headers: {
+        "HTTP-Referer": process.env.SITE_URL || "https://scrapingai.vercel.app",
+        "X-Title": "ScrapingAI",
       },
     })
-    modelProvider = openaiWithRouter(model)
+    modelProvider = openRouter(model)
   } else {
     // Default to OpenAI models
     const customOpenAI = createOpenAI({
@@ -51,17 +51,18 @@ export async function POST(req: Request) {
   // Create a system message to guide the AI
   const systemMessage = {
     role: "system",
-    content: `You are an AI Code Assistant that helps users create and set up projects.
+    content: `You are an AI Scraping Assistant that helps users create web scraping projects.
     When providing code, use markdown code blocks with the file path, like:
-    \`\`\`javascript file="app/page.js"
+    \`\`\`javascript file="app/scraper.js"
     // code here
     \`\`\`
     
     Focus on helping users with:
-    1. Creating project structures
+    1. Creating scraping solutions for various websites
     2. Writing clean, well-documented code
-    3. Setting up configurations
-    4. Explaining code concepts
+    3. Setting up configurations and handling rate limits
+    4. Explaining web scraping concepts and best practices
+    5. Ensuring compliance with website terms of service
     
     The user can create these files in their project by clicking a button.`,
   }

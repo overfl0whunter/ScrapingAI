@@ -63,45 +63,35 @@ async function scrapeWebsite(url) {
   links.slice(0, 5).forEach(link => console.log(\`- \${link}\`));
 })();`,
 
-  typescript: `// Web scraper with TypeScript and Axios
+  typescript: `// TypeScript Web Scraping Example
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
-interface ScrapeResult {
+interface ScrapingResult {
+  title: string;
   links: string[];
-  title: string | null;
 }
 
-async function scrapeWebsite(url: string): Promise<ScrapeResult> {
-  try {
-    // Fetch the HTML content
-    const response = await axios.get(url);
-    const html = response.data;
-    
-    // Load the HTML into cheerio
-    const $ = cheerio.load(html);
-    
-    // Extract links and title
-    const links = $('a')
-      .map((_, element) => $(element).attr('href'))
-      .get()
-      .filter((href): href is string => href !== undefined);
-    
-    const title = $('title').text() || null;
-    
-    return { links, title };
-  } catch (error) {
-    console.error('Error scraping website:', error);
-    return { links: [], title: null };
-  }
+async function scrapeWebsite(url: string): Promise<ScrapingResult> {
+  const response = await axios.get(url);
+  const $ = cheerio.load(response.data);
+  const title = $('title').text();
+  
+  const links: string[] = [];
+  $('a').each((_, element) => {
+    const href = $(element).attr('href');
+    if (href) links.push(href);
+  });
+  
+  return { title, links };
 }
 
 // Example usage
 (async () => {
-  const url = 'https://example.com';
-  const result = await scrapeWebsite(url);
-  console.log(\`Found ${result.links.length} links on ${url}\`);
-  console.log(\`Page title: ${result.title}\`);
+  const targetUrl = 'https://example.com';
+  const scrapingResult = await scrapeWebsite(targetUrl);
+  console.log(\`Found \${scrapingResult.links.length} links on \${targetUrl}\`);
+  console.log(\`Page title: \${scrapingResult.title}\`);
 })();`,
 }
 

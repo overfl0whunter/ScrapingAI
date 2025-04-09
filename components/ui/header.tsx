@@ -18,6 +18,13 @@ import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/components/auth/auth-provider"
 
+// Tipo AuthContextType
+type AuthContextType = {
+  user: User | null
+  loading: boolean
+  signOut: () => Promise<void>
+}
+
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -60,13 +67,16 @@ export function Header() {
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/projects">Projects</Link>
+                <Link href="/scrapers">Scrapers</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/models">AI Models</Link>
+                <Link href="/data">Data</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <Link href="/docs">Documentation</Link>
+                <Link href="/pricing">Pricing</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/docs">Documentazione</Link>
               </Button>
             </nav>
           </div>
@@ -76,7 +86,7 @@ export function Header() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Search..."
+                placeholder="Cerca..."
                 className="w-[200px] lg:w-[300px] pl-8 h-9 bg-muted/50 focus-visible:bg-background"
               />
             </div>
@@ -89,12 +99,14 @@ export function Header() {
             >
               <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              <span className="sr-only">Toggle theme</span>
+              <span className="sr-only">Cambia tema</span>
             </Button>
 
-            <Button variant="default" size="sm" className="hidden sm:flex gap-1">
-              <Plus className="h-4 w-4" />
-              <span>New Project</span>
+            <Button variant="default" size="sm" className="hidden sm:flex gap-1" asChild>
+              <Link href="/scrapers/new">
+                <Plus className="h-4 w-4" />
+                <span>Nuovo Scraper</span>
+              </Link>
             </Button>
 
             {user ? (
@@ -115,24 +127,28 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Code className="mr-2 h-4 w-4" />
-                    <span>Your Projects</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/scrapers">
+                      <Code className="mr-2 h-4 w-4" />
+                      <span>I tuoi Scrapers</span>
+                    </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Impostazioni</span>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Logout</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Button variant="default" size="sm" asChild>
-                <Link href="/login">Sign In</Link>
+                <Link href="/login">Accedi</Link>
               </Button>
             )}
 
@@ -154,7 +170,7 @@ export function Header() {
           <div className="container mx-auto px-4 py-4 space-y-4">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search..." className="w-full pl-8" />
+              <Input type="search" placeholder="Cerca..." className="w-full pl-8" />
             </div>
 
             <nav className="flex flex-col space-y-1">
@@ -162,19 +178,24 @@ export function Header() {
                 <Link href="/dashboard">Dashboard</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild className="justify-start">
-                <Link href="/projects">Projects</Link>
+                <Link href="/scrapers">Scrapers</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild className="justify-start">
-                <Link href="/models">AI Models</Link>
+                <Link href="/data">Data</Link>
               </Button>
               <Button variant="ghost" size="sm" asChild className="justify-start">
-                <Link href="/docs">Documentation</Link>
+                <Link href="/pricing">Pricing</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild className="justify-start">
+                <Link href="/docs">Documentazione</Link>
               </Button>
             </nav>
 
-            <Button variant="default" size="sm" className="w-full gap-1">
-              <Plus className="h-4 w-4" />
-              <span>New Project</span>
+            <Button variant="default" size="sm" className="w-full gap-1" asChild>
+              <Link href="/scrapers/new">
+                <Plus className="h-4 w-4" />
+                <span>Nuovo Scraper</span>
+              </Link>
             </Button>
           </div>
         </div>
