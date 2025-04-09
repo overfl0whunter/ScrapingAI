@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { createServerComponentClient } from './supabase-server'
 import Dashboard from "@/components/dashboard"
 
 export default async function Home() {
-  const supabase = getSupabaseServerClient()
+  const supabase = await createServerComponentClient()
 
   // Check if user is authenticated
   const {

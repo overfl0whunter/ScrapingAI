@@ -39,7 +39,7 @@ export interface Database {
   }
 }
 
-// Create a single instance of the Supabase client for browser
+// Singleton pattern per il client browser
 let supabaseClient: SupabaseClient | null = null
 
 export function getSupabaseBrowserClient(): SupabaseClient {
