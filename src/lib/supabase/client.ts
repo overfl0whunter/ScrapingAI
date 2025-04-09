@@ -1,6 +1,4 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface Database {
@@ -57,44 +55,4 @@ export function getSupabaseBrowserClient(): SupabaseClient {
   )
 
   return supabaseClient
-}
-
-export async function createClient() {
-  if (typeof window === 'undefined') {
-    const cookieStore = await cookies()
-    return createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            const cookie = cookieStore.get(name)
-            return cookie?.value
-          },
-        },
-      }
-    )
-  }
-
-  return createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
-
-export async function createServerComponentClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          const cookie = cookieStore.get(name)
-          return cookie?.value
-        },
-      },
-    }
-  )
 } 
